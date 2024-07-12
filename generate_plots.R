@@ -2,7 +2,7 @@
 
 #Load the simulated data that was generated with the file "generate_data.R"
 
-load("TD_data.rda")
+load("results/TD_data.rda")
 
 library(ggplot2)
 
