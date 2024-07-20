@@ -1,4 +1,4 @@
-#This file generates the data for the simulations in Section 4 of the paper "Online true discovery guarantee with e-values"
+#This file generates the data for the simulations in Section 4 of the paper "Online closed testing with e-values"
 
 library(tibble)
 library(reshape)
@@ -25,7 +25,7 @@ c=log(1/alpha)/(log(1+log(1/alpha)/a)*a)
 theta_c=log(1/alpha)/(c*a)
 
 #Procedures to compare
-lab=c("online-simple", "closed online-simple", "admissible online-simple", "GRO", "weighted GRO", "boosted GRO", "calibrated", "true proportion") 
+lab=c("online-simple", "closed online-simple", "admissible online-simple", "GRO", "hedged GRO", "boosted GRO", "calibrated", "true proportion") 
 
 #Initialize matrices for true discovery proportions
 prop_os=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
@@ -33,9 +33,9 @@ prop_e_os=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 prop_e_os_admiss=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 prop_e_calib=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 prop_gro=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
-prop_gro_weighted=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
+prop_gro_hedged=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 prop_gro_boosted=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
-prop_gro_weighted_boosted=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
+prop_gro_hedged_boosted=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 
 prop_true=matrix(, nrow=length(mu_As)*length(pi_As), ncol=n)
 
@@ -55,7 +55,7 @@ pi_A=pi_As[l]
   e_os_admiss = matrix(, nrow = n, ncol = m)
   e_calib = matrix(, nrow = n, ncol = m)
   e_gro = matrix(, nrow = n, ncol = m)
-  e_gro_weighted = matrix(, nrow = n, ncol = m)
+  e_gro_hedged = matrix(, nrow = n, ncol = m)
   hypo = matrix(, nrow = n, ncol = m)
   for(j in 1:m){
     hypo[, j]=rbinom(n, 1, pi_A)
@@ -71,8 +71,8 @@ pi_A=pi_As[l]
   bound_e_os_admiss=matrix(, nrow = n, ncol = m )
   bound_e_calib=matrix(, nrow = n, ncol = m )
   bound_gro=matrix(, nrow = n, ncol = m )
-  bound_gro_weighted=matrix(, nrow = n, ncol = m )
-  bound_gro_weighted_boosted=matrix(, nrow = n, ncol = m )
+  bound_gro_hedged=matrix(, nrow = n, ncol = m )
+  bound_gro_hedged_boosted=matrix(, nrow = n, ncol = m )
   bound_gro_boosted=matrix(, nrow = n, ncol = m )
   
   
@@ -102,16 +102,16 @@ pi_A=pi_As[l]
     #Bound for raw GRO e-values
     bound_gro[,j]=SeqE_Guard(e_gro[,j],idx_rejects_os)
     
-    #Bound for weighted GRO e-values
+    #Bound for hedged GRO e-values
     taus=c(1/2,(cumsum((e_gro[1:(n-1), j]>1))+1/2)/(2:n))
-    e_gro_weighted[, j]=taus*e_gro[, j]+(1-taus)
-    bound_gro_weighted[,j]=SeqE_Guard(e_gro_weighted[, j],idx_rejects_os)
+    e_gro_hedged[, j]=taus*e_gro[, j]+(1-taus)
+    bound_gro_hedged[,j]=SeqE_Guard(e_gro_hedged[, j],idx_rejects_os)
     
     #Bound for boosted GRO e-values
     bound_gro_boosted[,j]=boosted_SeqE_Guard(e_gro[,j],idx_rejects_os, mu_A)
     
-    #Bound for boosted and weighted GRO e-values
-    bound_gro_weighted_boosted[,j]=weighted_boosted_SeqE_Guard(e_gro[,j],idx_rejects_os, mu_A)
+    #Bound for boosted and hedged GRO e-values
+    bound_gro_hedged_boosted[,j]=hedged_boosted_SeqE_Guard(e_gro[,j],idx_rejects_os, mu_A)
       
   }
   
@@ -126,20 +126,22 @@ TDP_array[1:n,k, l, "closed online-simple"]=rowMeans(bound_e_os/pmax(rejections,
 TDP_array[1:n,k, l, "admissible online-simple"]=rowMeans(bound_e_os_admiss/pmax(rejections,1))
 TDP_array[1:n,k, l, "calibrated"]=rowMeans(bound_e_calib/pmax(rejections,1))
 TDP_array[1:n,k, l, "GRO"]=rowMeans(bound_gro/pmax(rejections,1))
-TDP_array[1:n,k, l, "weighted GRO"]=rowMeans(bound_gro_weighted/pmax(rejections,1))
-TDP_array[1:n,k, l, "boosted GRO"]=rowMeans(bound_gro_weighted_boosted/pmax(rejections,1))
+TDP_array[1:n,k, l, "hedged GRO"]=rowMeans(bound_gro_hedged/pmax(rejections,1))
+TDP_array[1:n,k, l, "boosted GRO"]=rowMeans(bound_gro_hedged_boosted/pmax(rejections,1))
 TDP_array[1:n,k, l, "true proportion"]=rowMeans(true_discoveries/pmax(rejections,1))
 
 }
 }
 
-#Transform array to data frame
+#Transform arrays to data frame
 TDP_df=as_tibble(melt(TDP_array))
 names(TDP_df)=c("index", "mu_A", "pi_A", "Procedure", "TDP")
 TDP_df$mu_A=factor(TDP_df$mu_A, levels=mu_As, labels=c("Weak signal", "Medium signal", "Strong signal"))
 TDP_df$pi_A=factor(TDP_df$pi_A, levels=pi_As, labels=c("10% non-nulls", "30% non-nulls", "50% non-nulls"))
 
+
 #Save data frame
+TDP_df$TDP[TDP_df$TDP<=0]=0
 save(TDP_df, file="results/TD_data.rda")
 
 

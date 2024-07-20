@@ -1,4 +1,4 @@
-#This file contains the Algorithms used for simulations of the paper "Online true discovery guarantee with e-values"
+#This file contains the Algorithms used for simulations of the paper "Online closed testing with e-values"
 
 #####General SeqE-Guard algorithm
 ###Input:
@@ -74,7 +74,7 @@ boosted_SeqE_Guard=function(e_vals, idx_rejects, delta){
   return(bound)
 }
 
-#####Weighted and boosted SeqE-Guard algorithm
+#####hedged and boosted SeqE-Guard algorithm
 ###Input:
 #e_vals:        vector of e-values.
 #idx_rejects:   vector containing indices of rejections. Maximum index should be smaller than length of e_vals.
@@ -82,10 +82,10 @@ boosted_SeqE_Guard=function(e_vals, idx_rejects, delta){
 #               vs. alternative H_i^A:X_i~N(mu_A,1) delta should be set to delta=mu_A-mu_N.
 
 ###Output:      Simultaneous bound for the number of true discoveries in the rejection set defined by idx_rejects.
-#               Before boosting the (GRO) e-values they are weighted according to the previous number of e-values larger than 1.
+#               Before boosting the (GRO) e-values they are hedged according to the previous number of e-values larger than 1.
 
 
-weighted_boosted_SeqE_Guard=function(e_vals, idx_rejects, delta){
+hedged_boosted_SeqE_Guard=function(e_vals, idx_rejects, delta){
   M=length(e_vals)
   A=c()
   U=c()
@@ -101,7 +101,7 @@ weighted_boosted_SeqE_Guard=function(e_vals, idx_rejects, delta){
     if(m_t==Inf){
       b[i]=1
     }else{
-      b[i]=max(1,e_boosted_weighted(m_t, delta, tau))
+      b[i]=max(1,e_boosted_hedged(m_t, delta, tau))
     }
     e_vals[i]=e_vals[i]*b[i]
     if(i %in% idx_rejects){
