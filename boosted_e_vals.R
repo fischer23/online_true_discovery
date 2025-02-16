@@ -1,4 +1,5 @@
-#This file contains the functions for boosting the e-values as described in Section 3.4 of the paper "Online closed testing with e-values"
+#This file contains the functions for boosting the e-values as described in Section 3.5
+#of the paper "Admissible online closed testing must employ e-values"
 
 ###General boosting method
 ##Input:

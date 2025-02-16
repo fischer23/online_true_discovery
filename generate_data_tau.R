@@ -1,4 +1,5 @@
-#This file generates the data for the simulations in Section 3.2 of the paper "Online closed testing with e-values"
+#This file generates the data for the simulations 
+#in Section 3.3 of the paper "Admissible online closed testing must employ e-values"
 
 library(tibble)
 library(reshape)
